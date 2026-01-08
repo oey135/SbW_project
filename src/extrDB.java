@@ -2,9 +2,9 @@ import java.sql.*;
 
 public class extrDB {
 
-    private static final String URL = "jdbc:mysql://192.168.0.112:3306/subway?serverTimezone=Asia/Seoul&useSSL=false";
-    private static final String USER = "Project1103";
-    private static final String PASSWORD = "project1103.";
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/subway?serverTimezone=Asia/Seoul&useSSL=false";
+    private static final String USER = "root";
+    private static final String PASSWORD = "mysql1234";
 
     public static String getStationName(int line, int id) {
         String query = "SELECT name FROM line? WHERE id = ?";
@@ -98,14 +98,13 @@ public class extrDB {
             if (rs.next()) {
                 System.out.println("\n( 번호 )    ( 역 명 )  ** 마지막 번호 다음은 1번 역으로 연결됌. (ex. 경찰병원 - 오금 - 대화, 정왕-오이도-진접)");
 
-                 do {
+                do {
                     int id = rs.getInt("id");
                     String name = rs.getString("name");
                     if(id<10)
                         System.out.println("   "+id+"         "+name);
-                    else if(id<100)
+                    else
                         System.out.println("   "+id+"        "+name);
-
 
                 } while (rs.next());
 

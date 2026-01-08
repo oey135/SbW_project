@@ -16,22 +16,25 @@ public class game extends extrDB{
                         " 문제 "+count+"번");
         MakeProb();
         System.out.println(
-                "\n\n" +
-                        "================================================="
+                "\n\n================================================="
         );
 
         System.out.println();
     }
 
     protected void MakeProb() {
-        int line = rd.nextInt(2)+3;
+        int line = rd.nextInt(3)+2;
         int id = 0;
 
         switch (line) {
+
+            case 2:
+                id = rd.nextInt(43)+1; break;
             case 3:
                 id = rd.nextInt(44)+1; break;
             case 4:
                 id = rd.nextInt(51)+1; break;
+
             default:
                 System.out.print("잘못된 호선이 선택되었습니다. 문제 생성 실패."); break;
         }
@@ -45,6 +48,20 @@ public class game extends extrDB{
     protected void MakeBA(int line, int id) {
 
         switch (line) {
+            case 2:
+                if(id==1) {
+                    ansData.setBefore(getStationName(line, 43));
+                    ansData.setAfter(getStationName(line, id + 1));
+                }
+                else if(id==44) {
+                    ansData.setBefore(getStationName(line, id-1));
+                    ansData.setAfter(getStationName(line, 1));
+                }
+                else {
+                    ansData.setBefore(getStationName(line, id-1));
+                    ansData.setAfter(getStationName(line, id+1));
+                }
+                break;
             case 3:
                 if(id==1) {
                     ansData.setBefore(getStationName(line, 44));
@@ -79,10 +96,7 @@ public class game extends extrDB{
     }
 
     protected boolean CheckAns(String answer) {
-        if(answer.equals(ansData.answer))
-            return true;
-        else
-            return false;
+        return answer.equals(ansData.answer);
     }
     public static final String green    = "\u001B[32m" ;
     public static final String red      = "\u001B[31m" ;

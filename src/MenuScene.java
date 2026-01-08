@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class menuScene extends extrDB{
+public class MenuScene extends extrDB{
     Scanner sc = new Scanner(System.in);
 
     public void menuScene() {
@@ -20,9 +20,9 @@ public class menuScene extends extrDB{
 
         switch (menu) {
             case 1:
-                System.out.print("\n확인할 호선을 선택해주세요! (3, 4) >> ");
+                System.out.print("\n확인할 호선을 선택해주세요! (2, 3, 4) >> ");
                 menu = sc.nextInt();
-                if(menu==3 || menu==4) {
+                if(menu==2 || menu==3 || menu==4) {
                     getStationAbout(menu); break;
                 }
                 else {
