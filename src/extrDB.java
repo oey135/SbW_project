@@ -96,9 +96,12 @@ public class extrDB {
              ResultSet rs = pstmt.executeQuery()) {
 
             if (rs.next()) {
-                System.out.println("\n\u001B[32m** 모든 호선은 가장 긴 노선으로 문제를 출제합니다.\n" +
-                                   "** 마지막 번호의 다음역은 1번 역으로 제시됩니다.\u001B[0m\n\n" +
-                                   "( 번호 )    ( 역 명 )  ");
+                System.out.println("""
+                        
+                        \u001B[32m** 모든 호선은 가장 긴 노선으로 문제를 출제합니다.
+                        ** 마지막 번호의 다음역은 1번 역으로 제시됩니다.\u001B[0m
+                        
+                        ( 번호 )    ( 역 명 ) \s""");
 
                 do {
                     int id = rs.getInt("id");
