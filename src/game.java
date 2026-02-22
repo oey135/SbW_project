@@ -23,7 +23,9 @@ public class game extends extrDB{
     }
 
     protected void MakeProb() {
-        int line = rd.nextInt(3)+2;
+        int[] allLines = {2,3,4,7};
+        int randIndex = rd.nextInt(4);
+        int line = allLines[randIndex];
         int id = 0;
 
         switch (line) {
@@ -34,6 +36,8 @@ public class game extends extrDB{
                 id = rd.nextInt(44)+1; break;
             case 4:
                 id = rd.nextInt(51)+1; break;
+            case 7:
+                id = rd.nextInt(53)+1; break;
 
             default:
                 System.out.print("잘못된 호선이 선택되었습니다. 문제 생성 실패."); break;
@@ -82,6 +86,20 @@ public class game extends extrDB{
                     ansData.setAfter(getStationName(line, id + 1));
                 }
                 else if(id==51) {
+                    ansData.setBefore(getStationName(line, id-1));
+                    ansData.setAfter(getStationName(line, 1));
+                }
+                else {
+                    ansData.setBefore(getStationName(line, id-1));
+                    ansData.setAfter(getStationName(line, id+1));
+                }
+                break;
+            case 7:
+                if(id==1) {
+                    ansData.setBefore(getStationName(line, 53));
+                    ansData.setAfter(getStationName(line, id + 1));
+                }
+                else if(id==53) {
                     ansData.setBefore(getStationName(line, id-1));
                     ansData.setAfter(getStationName(line, 1));
                 }
