@@ -2,7 +2,7 @@ import java.sql.*;
 
 public class extrDB {
 
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/subway?serverTimezone=Asia/Seoul&useSSL=false";
+    private static final String URL = "jdbc:mysql://localhost:3306/subway?serverTimezone=Asia/Seoul&useSSL=false";
     private static final String USER = "root";
     private static final String PASSWORD = "mysql1234";
 
@@ -34,12 +34,12 @@ public class extrDB {
         String query = "INSERT INTO game_score (player, score) VALUES (?, ?)";
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, player);
+
             pstmt.setInt(2, score);
             pstmt.executeUpdate();
-
             System.out.println("✅ 게임 결과가 성공적으로 저장되었습니다.");
 
         } catch (SQLException e) {
@@ -123,28 +123,49 @@ public class extrDB {
     }
 
     public void remainTop5() {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement stmt = conn.createStatement()) {
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            // 수동 커밋 모드로 전환 (안정성 확보)
+            conn.setAutoCommit(false);
 
-            String createTemp =
-                    "CREATE TABLE game_score_temp AS " +
-                            "SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS id, player, score " +
-                            "FROM game_score ORDER BY score DESC LIMIT 5;";
-            stmt.executeUpdate(createTemp);
+            try (Statement stmt = conn.createStatement()) {
+                // 1. 혹시 남아있을지 모를 유령 임시 테이블 삭제
+                stmt.executeUpdate("DROP TABLE IF EXISTS game_score_temp");
 
-            stmt.executeUpdate("TRUNCATE TABLE game_score;");
+                // 2. 상위 5명을 뽑아 새 ID(1~5)를 부여하며 임시 테이블 생성
+                String createTemp =
+                        "CREATE TABLE game_score_temp AS " +
+                                "SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS id, player, score " +
+                                "FROM game_score ORDER BY score DESC LIMIT 5";
+                stmt.executeUpdate(createTemp);
 
-            String copyBack =
-                    "INSERT INTO game_score (id, player, score) " +
-                            "SELECT id, player, score FROM game_score_temp;";
-            stmt.executeUpdate(copyBack);
+                // 3. 기존 테이블 비우기 (주의: 여기서 락이 걸릴 수 있으니 빠르게 실행)
+                stmt.executeUpdate("DELETE FROM game_score"); // TRUNCATE보다 DELETE가 트랜잭션 내에서 안전할 때가 많습니다.
 
-            stmt.executeUpdate("DROP TABLE game_score_temp;");
+                // 4. 임시 테이블 데이터를 본 테이블로 복사 (ID 1~5 포함)
+                String copyBack =
+                        "INSERT INTO game_score (id, player, score) " +
+                                "SELECT id, player, score FROM game_score_temp";
+                stmt.executeUpdate(copyBack);
 
-            System.out.println("✅ DB 최적화 성공");
+                // 5. 임시 테이블 삭제
+                stmt.executeUpdate("DROP TABLE game_score_temp");
 
+                // 모든 과정이 성공하면 한 번에 반영!
+                conn.commit();
+                System.out.println("✅ 최적화 성공");
+
+            } catch (SQLException e) {
+                if (conn != null) conn.rollback(); // 중간에 실패하면 원상복구
+                e.printStackTrace();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try { if (conn != null) conn.setAutoCommit(true); } catch (SQLException e) {
+                System.out.println("❌ 최적화 실패");
+            }
         }
     }
 }
