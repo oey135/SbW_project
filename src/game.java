@@ -1,3 +1,4 @@
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -5,6 +6,16 @@ public class game extends extrDB{
     Scanner sc = new Scanner(System.in);
     Random rd = new Random();
     AnswerData ansData = new AnswerData();
+    Map<Integer,Integer> lineMap = Map.of(
+            2,43,
+            3,44,
+            4,51,
+            5,49,
+            6,39,
+            7,53,
+            8,24,
+            9,38
+    );
     static int count = 0;
 
     protected void GameScene() {
@@ -23,24 +34,14 @@ public class game extends extrDB{
     }
 
     protected void MakeProb() {
-        int[] allLines = {2,3,4,7};
-        int randIndex = rd.nextInt(4);
-        int line = allLines[randIndex];
+        int line = rd.nextInt(2,10);
         int id = 0;
 
-        switch (line) {
-
-            case 2:
-                id = rd.nextInt(43)+1; break;
-            case 3:
-                id = rd.nextInt(44)+1; break;
-            case 4:
-                id = rd.nextInt(51)+1; break;
-            case 7:
-                id = rd.nextInt(53)+1; break;
-
-            default:
-                System.out.print("잘못된 호선이 선택되었습니다. 문제 생성 실패."); break;
+        if(lineMap.containsKey(line)){
+            id = rd.nextInt(lineMap.get(line))+1;
+        }
+        else {
+            System.out.print("잘못된 호선이 호출되었습니다. 문제 생성 실패.");
         }
 
         ansData.setAnswer(getStationName(line, id));
@@ -50,67 +51,17 @@ public class game extends extrDB{
     }
 
     protected void MakeBA(int line, int id) {
+        int last = lineMap.get(line);
 
-        switch (line) {
-            case 2:
-                if(id==1) {
-                    ansData.setBefore(getStationName(line, 43));
-                    ansData.setAfter(getStationName(line, id + 1));
-                }
-                else if(id==44) {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, 1));
-                }
-                else {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, id+1));
-                }
-                break;
-            case 3:
-                if(id==1) {
-                    ansData.setBefore(getStationName(line, 44));
-                    ansData.setAfter(getStationName(line, id + 1));
-                }
-                else if(id==44) {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, 1));
-                }
-                else {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, id+1));
-                }
-                break;
-            case 4:
-                if(id==1) {
-                    ansData.setBefore(getStationName(line, 51));
-                    ansData.setAfter(getStationName(line, id + 1));
-                }
-                else if(id==51) {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, 1));
-                }
-                else {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, id+1));
-                }
-                break;
-            case 7:
-                if(id==1) {
-                    ansData.setBefore(getStationName(line, 53));
-                    ansData.setAfter(getStationName(line, id + 1));
-                }
-                else if(id==53) {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, 1));
-                }
-                else {
-                    ansData.setBefore(getStationName(line, id-1));
-                    ansData.setAfter(getStationName(line, id+1));
-                }
-                break;
-            default:
-                System.out.print("잘못된 접근입니다. 호선을 확인해주세요.");
+        if(line <= 1 || line >= 10) {
+            System.out.print("잘못된 접근입니다. 호선을 확인해주세요. At MakeBA");
+            return;
         }
+        int beforeId = (id == 1) ? last : id - 1;
+        int afterId = (id == last) ? 1 : id + 1;
+
+        ansData.setBefore(getStationName(line, beforeId));
+        ansData.setAfter(getStationName(line, afterId));
     }
 
     protected boolean CheckAns(String answer) {
